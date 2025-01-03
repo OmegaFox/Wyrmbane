@@ -1,0 +1,9 @@
+{
+    "Lua.diagnostics.disable": [
+        "unused-function",
+        "undefined-global"
+    ],
+    "Lua.diagnostics.globals": [
+        "TUNING"
+    ]
+}
