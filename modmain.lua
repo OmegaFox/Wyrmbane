@@ -67,6 +67,18 @@ local skin_modes = {
 }
 
 
+blight_badge  = require "widgets/blight_badge"
+AddClassPostConstruct("widgets/statusdisplays", function(self)
+    if self.owner.prefab ~= 'wyrmbane' then
+        return
+    end
+
+    self.name = self:AddChild(blight_badge(self.owner))
+    self.name:SetPosition(-125, 75, 0) --Best to change these all to zero and start the game to see where it is. Then change the numbers one by one to get a better idea of what each number does.
+
+end)
+
+
 AddPrefabPostInit("wyrmbane", function(inst) 
     inst:AddTag("wyrmbane")
 end)

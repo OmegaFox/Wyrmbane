@@ -51,6 +51,16 @@ local function onload(inst)
     end
 end
 
+local function OnSave(inst,data)
+	data.wyrmbane_blight_badge = inst.wyrmbane_blight_badge:value()
+end
+
+local function OnLoad(inst,data)
+	if data and data.wyrmbane_blight_badge then
+		inst.wyrmbane_blight_badge:set(data.wyrmbane_blight_badge)
+	end
+end
+
 
 -- This initializes for both the server and client. Tags can be added here.
 local common_postinit = function(inst) 
@@ -58,6 +68,20 @@ local common_postinit = function(inst)
 	inst.MiniMapEntity:SetIcon( "wyrmbane.tex" )
 
 	inst:AddTag("wyrmbane")
+
+
+	inst.wyrmbane_blight_badge = net_ushortint(inst.GUID, "wyrmbane_blight_badge", "blightdelta" )
+	 --net_ushortint is the typical use of stats
+
+	 --"name" is the name of the netvariable
+	 --"namesdirty" is an Event which is called whenever this is changed
+
+	inst.wyrmbane_blight_badge:set(0)
+	 -- inst.name:set(number) [same as] inst.name = number
+
+	inst.wyrmbane_blight_badge:value()
+	 --getting the value of the net_variable 
+
 
     inst.AnimState:SetScale(1.1, 1.1)
 end
@@ -92,9 +116,14 @@ local master_postinit = function(inst)
 	inst.components.hunger.hungerrate = 1 * TUNING.WILSON_HUNGER_RATE
 	
 	inst.OnLoad = onload
+	inst.OnLoad = OnLoad
     inst.OnNewSpawn = onload
+	inst.OnSave = OnSave
 
 	inst:DoPeriodicTask(1, function()
+
+		inst.wyrmbane_blight_badge:set(inst.components.wyrmbane_blight:GetCurrent())
+
         print("Current Blight Value: " .. tostring(inst.components.wyrmbane_blight:GetCurrent()))
     
         -- In giá trị max của blight

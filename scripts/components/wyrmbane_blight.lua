@@ -23,8 +23,6 @@ function Blight:SetCurrent(amount)
     self.inst:PushEvent("blightdelta", { current = self.current })
 end
 
-
-
 function Blight:DoDelta(amount)
     self:SetCurrent(self.current + amount)
 end
