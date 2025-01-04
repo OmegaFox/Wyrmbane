@@ -67,6 +67,11 @@ local skin_modes = {
 }
 
 
+AddPrefabPostInit("wyrmbane", function(inst) 
+    inst:AddTag("wyrmbane")
+end)
+
+
 -- Add mod character to mod character list. Also specify a gender. Possible genders are MALE, FEMALE, ROBOT, NEUTRAL, and PLURAL.
 AddModCharacter("wyrmbane", "MALE", skin_modes)
 

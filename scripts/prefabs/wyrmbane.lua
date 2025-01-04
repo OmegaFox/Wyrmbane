@@ -5,11 +5,13 @@ local assets = {
 }
 
 local prefabs = {}
+require "components/wyrmbane_blight" 
 
 -- Your character's stats
 TUNING.WYRMBANE_HEALTH = 150
 TUNING.WYRMBANE_HUNGER = 150
 TUNING.WYRMBANE_SANITY = 200
+TUNING.WYRMBANE_BLIGHT = 100
 
 -- Custom starting inventory
 TUNING.GAMEMODE_STARTING_ITEMS.DEFAULT.WYRMBANE = {
@@ -29,6 +31,7 @@ local prefabs = FlattenTree(start_inv, true)
 local function onbecamehuman(inst)
 	-- Set speed when not a ghost (optional)
 	inst.components.locomotor:SetExternalSpeedMultiplier(inst, "wyrmbane_speed_mod", 1)
+	inst.components.wyrmbane_blight:SetCurrent(0)
 end
 
 local function onbecameghost(inst)
@@ -66,6 +69,8 @@ local sanpenalty3 = 0.9
 
 -- This initializes for the server only. Components are added here.
 local master_postinit = function(inst)
+
+    inst:AddComponent("wyrmbane_blight")
 	-- Set starting inventory
     inst.starting_inventory = start_inv[TheNet:GetServerGameMode()] or start_inv.default
 	
@@ -90,6 +95,11 @@ local master_postinit = function(inst)
     inst.OnNewSpawn = onload
 
 	inst:DoPeriodicTask(1, function()
+        print("Current Blight Value: " .. tostring(inst.components.wyrmbane_blight:GetCurrent()))
+    
+        -- In giá trị max của blight
+        print("Max Blight Value: " .. tostring(inst.components.wyrmbane_blight:GetMaxBlight()))
+
 		------------------------------------------- Penalty moisture when wet------------------------------------------------------------------------------------
 			local moist_penalty_threshold1 = 0.33
 			local moist_penalty_threshold2 = 0.66
