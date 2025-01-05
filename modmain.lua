@@ -54,8 +54,6 @@ STRINGS.CHARACTERS.WYRMBANE = require "speech_wyrmbane"
 STRINGS.NAMES.WYRMBANE = "wyrmbane"
 STRINGS.SKIN_NAMES.wyrmbane_none = "wyrmbane"
 
--- The skins shown in the cycle view window on the character select screen.
--- A good place to see what you can put in here is in skinutils.lua, in the function GetSkinModes
 local skin_modes = {
     { 
         type = "ghost_skin",
@@ -74,7 +72,7 @@ AddClassPostConstruct("widgets/statusdisplays", function(self)
     end
 
     self.name = self:AddChild(blight_badge(self.owner))
-    self.name:SetPosition(-125, 75, 0) --Best to change these all to zero and start the game to see where it is. Then change the numbers one by one to get a better idea of what each number does.
+    self.name:SetPosition(-125, 75, 0) 
 
 end)
 

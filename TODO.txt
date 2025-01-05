@@ -5,7 +5,7 @@ stats:
     - heath = 150
     - hunger = 100
     - sanity = 200
-    - Blight = 100
+    - Blight = 200
 
 weapon (scythe){
     - base damage: 45 damage
@@ -27,16 +27,7 @@ weapon (scythe){
 }
 
 recipe[
-    Purifying Ember[
-        nightmare fuel,
-        red gem,
-        ash,
-        Thulecite,
-    ]{
-        effect: 
-            - Decrease Blight by 30, +20 heath (2 min countdown)
 
-    }
 ]
 
 <+>
@@ -44,33 +35,36 @@ recipe[
     - each time take damage has 20% decrease damage recive by 25%, 
         when[ Blight higher 33%, decrease damage recive by 35%,
               Blight higher 66%, decrease damage recive by 50%]
-<->
-    - hate water {
-        max sanity decrease when get wet
-    }
+    - insmuse to cold
 
+<->
     - nutrition and heath from food decrease by 50% {
-        can eat nightmare fuel [+25 hunger, -5 sanity, +10 Blight]
+        can eat nightmare fuel [+25 hunger, +10 Blight, +5 health]
     }
 
     - hate heat {
         will decrease heath overtime when tempure over x'C
     }
 
+    -
+
 <?> 
+
+    <description>{
+        - Blight 
+    }
     Blight [0 - 100] {
         - [+1 Blight] per 15 second when combat 
         - [+10 Blight] when eat nightmare fuel
         - Decrease 15 when eat cooked food
-        - Decrease Blight by 30 when using Purifying Ember
+        - Decrease 
 
         Blight[0 - 33]{
-            +5% bonus damage
-            +5% movement speed
+            - no effect
         }
         Blight[34 - 66]{
-            +10 bonus damage
-            +10 bonus movement
+            +10% bonus damage
+            +10% bonus movement
             2% drain 10 heath
             -33% max heath
         }

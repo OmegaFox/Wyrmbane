@@ -27,23 +27,18 @@ for k, v in pairs(TUNING.GAMEMODE_STARTING_ITEMS) do
 end
 local prefabs = FlattenTree(start_inv, true)
 
--- When the character is revived from human
 local function onbecamehuman(inst)
-	-- Set speed when not a ghost (optional)
 	inst.components.locomotor:SetExternalSpeedMultiplier(inst, "wyrmbane_speed_mod", 1)
-	inst.components.wyrmbane_blight:SetCurrent(0)
 end
 
 local function onbecameghost(inst)
-	-- Remove speed modifier when becoming a ghost
    inst.components.locomotor:RemoveExternalSpeedMultiplier(inst, "wyrmbane_speed_mod")
 end
 
--- When loading or spawning the character
 local function onload(inst)
     inst:ListenForEvent("ms_respawnedfromghost", onbecamehuman)
     inst:ListenForEvent("ms_becameghost", onbecameghost)
-
+	
     if inst:HasTag("playerghost") then
         onbecameghost(inst)
     else
@@ -61,44 +56,30 @@ local function OnLoad(inst,data)
 	end
 end
 
-
--- This initializes for both the server and client. Tags can be added here.
 local common_postinit = function(inst) 
-	-- Minimap icon
+
 	inst.MiniMapEntity:SetIcon( "wyrmbane.tex" )
 
 	inst:AddTag("wyrmbane")
 
-
 	inst.wyrmbane_blight_badge = net_ushortint(inst.GUID, "wyrmbane_blight_badge", "blightdelta" )
-	 --net_ushortint is the typical use of stats
-
-	 --"name" is the name of the netvariable
-	 --"namesdirty" is an Event which is called whenever this is changed
-
 	inst.wyrmbane_blight_badge:set(0)
-	 -- inst.name:set(number) [same as] inst.name = number
-
 	inst.wyrmbane_blight_badge:value()
-	 --getting the value of the net_variable 
-
 
     inst.AnimState:SetScale(1.1, 1.1)
 end
 
--- Sanity penalty when wet
-local sanpenalty1 = 0.3
-local sanpenalty2 = 0.6
-local sanpenalty3 = 0.9
+-- penalty when wet
+local penalty = 0.25
+local rm_penalty = -1
 
--- This initializes for the server only. Components are added here.
+
 local master_postinit = function(inst)
 
     inst:AddComponent("wyrmbane_blight")
-	-- Set starting inventory
+
     inst.starting_inventory = start_inv[TheNet:GetServerGameMode()] or start_inv.default
-	
-	-- choose which sounds this character will play
+
 	inst.soundsname = "willow"
 	
 	-- Uncomment if "wathgrithr"(Wigfrid) or "webber" voice is used
@@ -120,67 +101,48 @@ local master_postinit = function(inst)
     inst.OnNewSpawn = onload
 	inst.OnSave = OnSave
 
-	inst:DoPeriodicTask(1, function()
-
+	inst:DoPeriodicTask(0.5, function()
+		------------------------------------------- Blight badge---------------------------------------------------------------------------------------------
 		inst.wyrmbane_blight_badge:set(inst.components.wyrmbane_blight:GetCurrent())
-
-        print("Current Blight Value: " .. tostring(inst.components.wyrmbane_blight:GetCurrent()))
-    
-        -- In giá trị max của blight
-        print("Max Blight Value: " .. tostring(inst.components.wyrmbane_blight:GetMaxBlight()))
-
-		------------------------------------------- Penalty moisture when wet------------------------------------------------------------------------------------
-			local moist_penalty_threshold1 = 0.33
-			local moist_penalty_threshold2 = 0.66
-			local moist_penalty_threshold3 = 0.99
-			local max = inst.components.moisture:GetMaxMoisture()
-			local current = inst.components.moisture:GetMoisture()
-			local maxsan = inst.components.sanity:GetMaxWithPenalty()
-			local orisan = TUNING.WYRMBANE_SANITY
+		
+		------------------------------------------- Penalty system ------------------------------------------------------------------------------------
+			local blight_penalty_threshold1 = 0.33
+			local blight_penalty_threshold2 = 0.66
+			local blight_penalty_threshold3 = 0.99
+			local max_blight = inst.components.wyrmbane_blight:GetMaxBlight()
+			local current_blight = inst.components.wyrmbane_blight:GetCurrent()
+			local max_health = inst.components.sanity:GetMaxWithPenalty()
+			local ori_health = TUNING.WYRMBANE_HEALTH
 	
-			local newcurrent = current / max
+			local newcurrent = current_blight / max_blight
 	
-			if max ~= nil and current ~= nil then
-				if newcurrent < moist_penalty_threshold1 then
-					inst.components.sanity:RemoveSanityPenalty("sanpenalty_2")
-					inst.components.sanity:RemoveSanityPenalty("sanpenalty_3")
-					inst.components.sanity:RemoveSanityPenalty("sanpenalty_1")
-				elseif newcurrent >= moist_penalty_threshold1 and newcurrent < moist_penalty_threshold2 then
-					if not orisan then orisan = 200 end
-					if maxsan ~= 0.7 * orisan then
-						inst.components.sanity:RemoveSanityPenalty("sanpenalty_2")
-						inst.components.sanity:RemoveSanityPenalty("sanpenalty_3")
-						inst.components.sanity:AddSanityPenalty("sanpenalty_1", sanpenalty1)
+			if max_blight ~= nil and current_blight ~= nil then
+				if newcurrent < blight_penalty_threshold1 then
+					inst.components.health:DeltaPenalty(rm_penalty)		
+				elseif newcurrent >= blight_penalty_threshold1 and newcurrent < blight_penalty_threshold2 then
+					if not ori_health then ori_health = 200 end
+					if max_health ~= 0.7 * ori_health then
+						inst.components.health:DeltaPenalty(penalty)	
 					end
-				elseif newcurrent >= moist_penalty_threshold2 and newcurrent < moist_penalty_threshold3 then
-					if maxsan ~= 0.4 * orisan then
-						inst.components.sanity:RemoveSanityPenalty("sanpenalty_1")
-						inst.components.sanity:RemoveSanityPenalty("sanpenalty_3")
-						inst.components.sanity:AddSanityPenalty("sanpenalty_2", sanpenalty2)
+				elseif newcurrent >= blight_penalty_threshold2 and newcurrent < blight_penalty_threshold3 then
+					if max_health ~= 0.4 * ori_health then
+						inst.components.health:DeltaPenalty(penalty)					
 					end
-				elseif newcurrent >= moist_penalty_threshold3 and newcurrent <= 1 then
-					if maxsan ~= 0.1 * orisan then
-						inst.components.sanity:RemoveSanityPenalty("sanpenalty_1")
-						inst.components.sanity:RemoveSanityPenalty("sanpenalty_2")
-						inst.components.sanity:AddSanityPenalty("sanpenalty_3", sanpenalty3)
+				elseif newcurrent >= blight_penalty_threshold3 and newcurrent <= 1 then
+					if max_health ~= 0.1 * ori_health then
+						inst.components.health:DeltaPenalty(penalty)
 					end
 				end
 			end
 		---------------------------------------------------------------------------------------------------------------------------------------------------------
 		------------------------------------------- Speed boost at night-----------------------------------------------------------------------------------------
-		if TheWorld.state.isnight then
-			inst.components.locomotor:SetExternalSpeedMultiplier(inst, "wyrmbane_night_speed", 1.1)  -- +10% speed
-		else
-			inst.components.locomotor:RemoveExternalSpeedMultiplier(inst, "wyrmbane_night_speed")
-		end
-		---------------------------------------------------------------------------------------------------------------------------------------------------------
-		------------------------------------------- add blight when combat---------------------------------------------------------------------------------------
-	
+
 		---------------------------------------------------------------------------------------------------------------------------------------------------------
 	end)
 	
 end
 
-
-
     return MakePlayerCharacter("wyrmbane", prefabs, assets, common_postinit, master_postinit, prefabs)
+
+
+
