@@ -8,13 +8,13 @@ stats:
     - Blight = 200
 
 weapon (scythe){
-    - base damage: 45 damage
+    - base damage: 55 damage
     - durasion: 200 hit
     - can fuel: [nightmare fuel: 10% each]
     - recipe[living long, nightmare fuel, red gems] 
     - effect[
         +1 Blight each time using
-        +5 heath for each enemy killed by weapon
+        +5 sanity for each enemy killed by weapon
         When hitting an enemy, has a 10% chance to cause fire for 3 seconds {
             Deals 15 damage per second. If the enemy is a Moon creature, the damage is doubled.
         }
@@ -23,7 +23,6 @@ weapon (scythe){
         After use, Blight is completely reduced to 0 and has a 90 second cooldown.
         }
     ]
-
 }
 
 recipe[
@@ -31,22 +30,19 @@ recipe[
 ]
 
 <+>
-    - Increase movement speed by 10% at night
-    - each time take damage has 20% decrease damage recive by 25%, 
-        when[ Blight higher 33%, decrease damage recive by 35%,
-              Blight higher 66%, decrease damage recive by 50%]
+    - Increase movement speed by 10% at night and cave
+    - //Gain invulnerability when receiving a fatal attack for x seconds, CD: 480s//
     - insmuse to cold
+
 
 <->
     - nutrition and heath from food decrease by 50% {
-        can eat nightmare fuel [+25 hunger, +10 Blight, +5 health]
+        can eat nightmare fuel [+25 hunger, +10 Blight, -5 sanity]
     }
 
     - hate heat {
         will decrease heath overtime when tempure over x'C
     }
-
-    -
 
 <?> 
 
@@ -56,22 +52,25 @@ recipe[
     Blight [0 - 100] {
         - [+1 Blight] per 15 second when combat 
         - [+10 Blight] when eat nightmare fuel
-        - Decrease 15 when eat cooked food
         - Decrease 
 
-        Blight[0 - 33]{
+        Blight[0 - 25]{
             - no effect
         }
-        Blight[34 - 66]{
+        Blight[26 - 50]{
             +10% bonus damage
             +10% bonus movement
-            2% drain 10 heath
-            -33% max heath
+            -25% max heath
         }
-        Blight[67 - 100]{
-            +30% bonus damage
-            +15% movement speed
-            10% drain 10 heath and +5 sanity each time success drain
-            -66% max heath
+        Blight[51 - 75]{
+            +20% bonus damage
+            +20% bonus movement
+            -50% max heath
+        }
+        Blight[76 - 100]{
+            +40% bonus damage
+            +40% movement speed
+            5% summon blast and +5 sanity each time success drain
+            -75% max heath
         }
     }

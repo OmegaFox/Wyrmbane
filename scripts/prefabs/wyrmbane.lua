@@ -11,7 +11,7 @@ require "components/wyrmbane_blight"
 TUNING.WYRMBANE_HEALTH = 150
 TUNING.WYRMBANE_HUNGER = 150
 TUNING.WYRMBANE_SANITY = 200
-TUNING.WYRMBANE_BLIGHT = 100
+TUNING.WYRMBANE_BLIGHT = 200
 
 -- Custom starting inventory
 TUNING.GAMEMODE_STARTING_ITEMS.DEFAULT.WYRMBANE = {
@@ -33,6 +33,7 @@ end
 
 local function onbecameghost(inst)
    inst.components.locomotor:RemoveExternalSpeedMultiplier(inst, "wyrmbane_speed_mod")
+   print(inst.name .. " has become a ghost!")
 end
 
 local function onload(inst)
@@ -69,14 +70,32 @@ local common_postinit = function(inst)
     inst.AnimState:SetScale(1.1, 1.1)
 end
 
--- penalty when wet
-local penalty = 0.25
-local rm_penalty = -1
+
+local function OnAttacked(inst, data)
+
+	local damage = data.damage or 0
+	local current_health = inst.components.health.currenthealth
+
+	-- decrease blight when not in combat
+	inst.in_combat = true
+    inst:DoTaskInTime(15, function() 
+        inst.in_combat = false 
+    end)
+
+	-- if health is less than 1, set health to 1 and set absorption to 1
+	if current_health - damage <= 1 then
+		inst.components.health:SetCurrentHealth(1)
+		inst.components.health:SetAbsorptionAmount(1)
+		inst:DoTaskInTime(10, function()
+			inst.components.health:SetAbsorptionAmount(0)
+		end)
+	end
+end
 
 
 local master_postinit = function(inst)
-
     inst:AddComponent("wyrmbane_blight")
+	inst.in_combat = false
 
     inst.starting_inventory = start_inv[TheNet:GetServerGameMode()] or start_inv.default
 
@@ -95,54 +114,81 @@ local master_postinit = function(inst)
 	
 	-- Hunger rate (optional)
 	inst.components.hunger.hungerrate = 1 * TUNING.WILSON_HUNGER_RATE
+
+	-- immune to cold damage
+	inst.components.temperature.mintemp = 5  
+
+	-- weak with heat and take bonus damage from overheat
+	inst.components.temperature.overheattemp = 60
+	inst.components.temperature:SetOverheatHurtRate(2)
 	
 	inst.OnLoad = onload
 	inst.OnLoad = OnLoad
     inst.OnNewSpawn = onload
 	inst.OnSave = OnSave
 
-	inst:DoPeriodicTask(0.5, function()
+
+	-- penalty
+	local penalty1 = 0.25
+	local penalty2 = 0.5
+	local penalty3 = 0.75
+	local rm_penalty = -1
+	local max_blight = inst.components.wyrmbane_blight:GetMaxBlight()
+	local current_blight = inst.components.wyrmbane_blight:GetCurrent()
+	local ori_health = TUNING.WYRMBANE_HEALTH
+	local newcurrent = current_blight / max_blight
+
+
+	
+	inst:ListenForEvent("onattackother", function(inst, data)
+        inst.in_combat = true
+        inst:DoTaskInTime(15, function() 
+            inst.in_combat = false 
+        end)
+    end)
+
+	inst:ListenForEvent("attacked", OnAttacked)
+
+	inst:DoPeriodicTask(0.5, function()		
+		------------------------------------------- Penalty system ------------------------------------------------------------------------------------
+        local target_penalty = 0
+
+        if newcurrent < 0.25 then
+            target_penalty = 0
+        elseif newcurrent < 0.5 then
+            target_penalty = penalty1
+        elseif newcurrent < 0.75 then
+            target_penalty = penalty2
+        else
+            target_penalty = penalty3
+        end
+        
+        local current_penalty = 1 - (inst.components.health:GetMaxWithPenalty() / ori_health)
+
+        if target_penalty ~= current_penalty then
+            inst.components.health:DeltaPenalty(rm_penalty)  
+            if target_penalty > 0 then
+                inst.components.health:DeltaPenalty(target_penalty)
+            end
+        end
+	end)
+
+	inst:DoPeriodicTask(1,function()
+		-- reduce blight when not in combat
+		if not inst.in_combat then
+			local current_blight = inst.components.wyrmbane_blight:GetCurrent()
+			if current_blight > 0 then
+				inst.components.wyrmbane_blight:DoDelta(-1)
+			end
+		end
 		------------------------------------------- Blight badge---------------------------------------------------------------------------------------------
 		inst.wyrmbane_blight_badge:set(inst.components.wyrmbane_blight:GetCurrent())
-		
-		------------------------------------------- Penalty system ------------------------------------------------------------------------------------
-			local blight_penalty_threshold1 = 0.33
-			local blight_penalty_threshold2 = 0.66
-			local blight_penalty_threshold3 = 0.99
-			local max_blight = inst.components.wyrmbane_blight:GetMaxBlight()
-			local current_blight = inst.components.wyrmbane_blight:GetCurrent()
-			local max_health = inst.components.sanity:GetMaxWithPenalty()
-			local ori_health = TUNING.WYRMBANE_HEALTH
-	
-			local newcurrent = current_blight / max_blight
-	
-			if max_blight ~= nil and current_blight ~= nil then
-				if newcurrent < blight_penalty_threshold1 then
-					inst.components.health:DeltaPenalty(rm_penalty)		
-				elseif newcurrent >= blight_penalty_threshold1 and newcurrent < blight_penalty_threshold2 then
-					if not ori_health then ori_health = 200 end
-					if max_health ~= 0.7 * ori_health then
-						inst.components.health:DeltaPenalty(penalty)	
-					end
-				elseif newcurrent >= blight_penalty_threshold2 and newcurrent < blight_penalty_threshold3 then
-					if max_health ~= 0.4 * ori_health then
-						inst.components.health:DeltaPenalty(penalty)					
-					end
-				elseif newcurrent >= blight_penalty_threshold3 and newcurrent <= 1 then
-					if max_health ~= 0.1 * ori_health then
-						inst.components.health:DeltaPenalty(penalty)
-					end
-				end
-			end
-		---------------------------------------------------------------------------------------------------------------------------------------------------------
-		------------------------------------------- Speed boost at night-----------------------------------------------------------------------------------------
 
-		---------------------------------------------------------------------------------------------------------------------------------------------------------
 	end)
 	
 end
 
-    return MakePlayerCharacter("wyrmbane", prefabs, assets, common_postinit, master_postinit, prefabs)
+return MakePlayerCharacter("wyrmbane", prefabs, assets, common_postinit, master_postinit, prefabs)
 
 
 

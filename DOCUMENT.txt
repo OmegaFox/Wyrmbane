@@ -1,0 +1,53 @@
+onattackother – Khi nhân vật tấn công kẻ khác.
+onhitother – Khi nhân vật gây sát thương lên mục tiêu.
+onhit – Khi nhân vật bị tấn công.
+attacked – Khi nhân vật nhận sát thương từ đòn đánh.
+killed – Khi nhân vật giết một sinh vật khác.
+
+Cách lắng nghe sự kiện chiến đấu:
+1. Khi nhân vật bị tấn công (Attacked):
+
+inst:ListenForEvent("attacked", function(inst, data)
+    print(inst.name .. " vừa bị tấn công!")
+end)
+➡️ Mỗi khi nhân vật bị đánh, sự kiện attacked sẽ được kích hoạt và thông báo trong console.
+
+2. Khi nhân vật tấn công kẻ khác (OnAttackOther):
+
+inst:ListenForEvent("onattackother", function(inst, data)
+    print(inst.name .. " tấn công " .. (data.target and data.target.name or "một kẻ địch không xác định"))
+end)
+➡️ In ra tên của mục tiêu mà nhân vật tấn công.
+
+3. Khi nhân vật gây sát thương (OnHitOther):
+
+inst:ListenForEvent("onhitother", function(inst, data)
+    print(inst.name .. " đã đánh trúng " .. (data.target and data.target.name or "ai đó"))
+end)
+➡️ Xác nhận nhân vật đã gây sát thương thành công.
+
+4. Khi nhân vật bị đánh trúng (OnHit):
+
+inst:ListenForEvent("onhit", function(inst, data)
+    print(inst.name .. " vừa bị " .. (data.attacker and data.attacker.name or "một thứ gì đó") .. " đánh!")
+end)
+➡️ Hiển thị tên của kẻ đã tấn công nhân vật.
+
+5. Khi nhân vật giết kẻ khác (Killed):
+
+inst:ListenForEvent("killed", function(inst, data)
+    print(inst.name .. " đã giết " .. (data.victim and data.victim.name or "một sinh vật"))
+end)
+➡️ In ra thông báo khi nhân vật giết được sinh vật nào đó.
+
+Ứng dụng thực tế:
+Tăng tốc độ di chuyển khi nhân vật tấn công kẻ địch:
+
+inst:ListenForEvent("onattackother", function(inst, data)
+    inst.components.locomotor:SetExternalSpeedMultiplier(inst, "attack_speed_boost", 1.25)
+    inst:DoTaskInTime(5, function()
+        inst.components.locomotor:RemoveExternalSpeedMultiplier(inst, "attack_speed_boost")
+    end)
+end)
+➡️ Khi nhân vật tấn công, họ sẽ tăng tốc trong 5 giây.
+
