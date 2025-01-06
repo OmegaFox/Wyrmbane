@@ -76,11 +76,28 @@ AddClassPostConstruct("widgets/statusdisplays", function(self)
 
 end)
 
-
 AddPrefabPostInit("wyrmbane", function(inst) 
     inst:AddTag("wyrmbane")
 end)
 
+
+
+
+AddComponentPostInit("combat", function(Combat)
+    local old_damage = Combat.CalcDamage
+    Combat.CalcDamage = function(self, target, weapon, ...)
+        local damage = old_damage(self, target, weapon, ...)
+        if target:HasTag("invincibility_available") then
+            local current_health = target.components.health.currenthealth
+            if (current_health - damage) <= 1 then
+                target.components.health:SetCurrentHealth(1)
+                target.components.health:SetAbsorptionAmount(1)
+                target:PushEvent("active_invincibility", target)
+            end
+        end
+        return damage
+    end
+end)
 
 -- Add mod character to mod character list. Also specify a gender. Possible genders are MALE, FEMALE, ROBOT, NEUTRAL, and PLURAL.
 AddModCharacter("wyrmbane", "MALE", skin_modes)

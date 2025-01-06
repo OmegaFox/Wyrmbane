@@ -1,4 +1,5 @@
 local MakePlayerCharacter = require "prefabs/player_common"
+local Text = require "widgets/text"
 
 local assets = {
     Asset("SCRIPT", "scripts/prefabs/player_common.lua"),
@@ -62,6 +63,7 @@ local common_postinit = function(inst)
 	inst.MiniMapEntity:SetIcon( "wyrmbane.tex" )
 
 	inst:AddTag("wyrmbane")
+	inst:AddTag("invincibility_available")
 
 	inst.wyrmbane_blight_badge = net_ushortint(inst.GUID, "wyrmbane_blight_badge", "blightdelta" )
 	inst.wyrmbane_blight_badge:set(0)
@@ -69,31 +71,43 @@ local common_postinit = function(inst)
 
     inst.AnimState:SetScale(1.1, 1.1)
 end
-
+-----------------------------------------------------------------------------------------------------------
 
 local function OnAttacked(inst, data)
-
-	local damage = data.damage or 0
-	local current_health = inst.components.health.currenthealth
-
-	-- decrease blight when not in combat
+	--------- combat status ----------
 	inst.in_combat = true
     inst:DoTaskInTime(15, function() 
         inst.in_combat = false 
     end)
+end
 
-	-- if health is less than 1, set health to 1 and set absorption to 1
-	if current_health - damage <= 1 then
-		inst.components.health:SetCurrentHealth(1)
-		inst.components.health:SetAbsorptionAmount(1)
-		inst:DoTaskInTime(10, function()
-			inst.components.health:SetAbsorptionAmount(0)
+local function showTextUI (inst, duration, text)
+	if inst == ThePlayer and ThePlayer.HUD then
+		if ThePlayer.HUD.invincibility_label == nil then
+			local screen_w, screen_h = TheSim:GetScreenSize()
+			ThePlayer.HUD.invincibility_label = ThePlayer.HUD:AddChild(Text(TALKINGFONT, 25))
+			ThePlayer.HUD.invincibility_label:SetPosition(screen_w * 0.94, screen_h * 0.75)
+			ThePlayer.HUD.invincibility_label:SetHAlign(ANCHOR_MIDDLE)
+			ThePlayer.HUD.invincibility_label:SetVAlign(ANCHOR_MIDDLE)
+		end
+
+		inst.showText = inst:DoPeriodicTask(1, function()
+		duration = duration - 1
+		ThePlayer.HUD.invincibility_label:SetString(text .. duration .. " seconds")
+		ThePlayer.HUD.invincibility_label:Show()
+			if duration == 0 then
+				if inst == ThePlayer and ThePlayer.HUD and ThePlayer.HUD.invincibility_label then
+					ThePlayer.HUD.invincibility_label:Hide()
+				end
+				inst.showText:Cancel()
+			end
 		end)
 	end
 end
 
 
 local master_postinit = function(inst)
+	
     inst:AddComponent("wyrmbane_blight")
 	inst.in_combat = false
 
@@ -127,6 +141,39 @@ local master_postinit = function(inst)
     inst.OnNewSpawn = onload
 	inst.OnSave = OnSave
 
+	inst:ListenForEvent("onattackother", function(inst, data)
+        inst.in_combat = true
+        inst:DoTaskInTime(15, function() 
+            inst.in_combat = false 
+        end)
+    end)
+
+	local cooldown_time = 10
+	local duration = 10
+
+	inst:ListenForEvent("active_invincibility", function()
+		inst:RemoveTag("invincibility_available")
+
+		showTextUI(inst, duration, "Durration: ")
+
+		inst.StopInvincibility = inst:DoTaskInTime(duration, function()
+			inst.components.health:SetAbsorptionAmount(0)
+			-- inst:AddTag("invincibility_available")
+
+			inst.showCD =  inst:DoPeriodicTask(1,function()
+				showTextUI(inst, cooldown_time, "Cooldown: ")
+				inst.showCD:Cancel()
+			end)
+
+			inst.cooldown_invinc = inst:DoTaskInTime(cooldown_time, function()
+				inst:AddTag("invincibility_available")
+				inst.cooldown_invinc:Cancel()
+			end)
+			inst.StopInvincibility:Cancel()
+		end)
+	end)
+
+	inst:ListenForEvent("attacked", OnAttacked)
 
 	-- penalty
 	local penalty1 = 0.25
@@ -137,17 +184,6 @@ local master_postinit = function(inst)
 	local current_blight = inst.components.wyrmbane_blight:GetCurrent()
 	local ori_health = TUNING.WYRMBANE_HEALTH
 	local newcurrent = current_blight / max_blight
-
-
-	
-	inst:ListenForEvent("onattackother", function(inst, data)
-        inst.in_combat = true
-        inst:DoTaskInTime(15, function() 
-            inst.in_combat = false 
-        end)
-    end)
-
-	inst:ListenForEvent("attacked", OnAttacked)
 
 	inst:DoPeriodicTask(0.5, function()		
 		------------------------------------------- Penalty system ------------------------------------------------------------------------------------
