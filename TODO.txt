@@ -7,7 +7,8 @@ stats:
     - sanity = 200
     - Blight = 200
 
-weapon (scythe){
+weapon 
+    (scythe){
     - base damage: 55 damage
     - durasion: 200 hit
     - can fuel: [nightmare fuel: 10% each]
@@ -23,9 +24,24 @@ weapon (scythe){
         After use, Blight is completely reduced to 0 and has a 90 second cooldown.
         }
     ]
+
+    (pearl){
+
+    }
 }
 
 recipe[
+    (skull){
+        - make cold area
+    }
+
+    (smt to fuel signature){
+
+    }
+
+    (signature armor){
+
+    }
 
 ]
 
@@ -58,19 +74,19 @@ recipe[
             - no effect
         }
         Blight[26 - 50]{
-            +10% bonus damage
-            +10% bonus movement
+            +20% bonus damage
+            +20% bonus movement
             -25% max heath
         }
         Blight[51 - 75]{
-            +20% bonus damage
-            +20% bonus movement
+            +40% bonus damage
+            +40% bonus movement
             -50% max heath
         }
         Blight[76 - 100]{
-            +40% bonus damage
-            +40% movement speed
-            5% summon blast and +5 sanity each time success drain
+            +80% bonus damage
+            +80% movement speed
+            // 5% summon blast and +5 sanity each time success drain
             -75% max heath
         }
     }

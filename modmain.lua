@@ -80,9 +80,6 @@ AddPrefabPostInit("wyrmbane", function(inst)
     inst:AddTag("wyrmbane")
 end)
 
-
-
-
 AddComponentPostInit("combat", function(Combat)
     local old_damage = Combat.CalcDamage
     Combat.CalcDamage = function(self, target, weapon, ...)

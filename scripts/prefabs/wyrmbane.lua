@@ -34,7 +34,6 @@ end
 
 local function onbecameghost(inst)
    inst.components.locomotor:RemoveExternalSpeedMultiplier(inst, "wyrmbane_speed_mod")
-   print(inst.name .. " has become a ghost!")
 end
 
 local function onload(inst)
@@ -180,23 +179,33 @@ local master_postinit = function(inst)
 	local penalty2 = 0.5
 	local penalty3 = 0.75
 	local rm_penalty = -1
-	local max_blight = inst.components.wyrmbane_blight:GetMaxBlight()
-	local current_blight = inst.components.wyrmbane_blight:GetCurrent()
-	local ori_health = TUNING.WYRMBANE_HEALTH
-	local newcurrent = current_blight / max_blight
+
 
 	inst:DoPeriodicTask(0.5, function()		
+		local max_blight = inst.components.wyrmbane_blight:GetMaxBlight()
+		local current_blight = inst.components.wyrmbane_blight:GetCurrent()
+		local ori_health = TUNING.WYRMBANE_HEALTH
+		local newcurrent = current_blight / max_blight
+		print(current_blight)
 		------------------------------------------- Penalty system ------------------------------------------------------------------------------------
         local target_penalty = 0
+		local bonus_dmg = 0
+		local bonus_mov = 0
 
         if newcurrent < 0.25 then
             target_penalty = 0
         elseif newcurrent < 0.5 then
             target_penalty = penalty1
+			bonus_dmg = 0.2
+			bonus_mov = 0.2
         elseif newcurrent < 0.75 then
             target_penalty = penalty2
+			bonus_dmg = 0.4
+			bonus_mov = 0.4
         else
             target_penalty = penalty3
+			bonus_dmg = 0.8
+			bonus_mov = 0.8
         end
         
         local current_penalty = 1 - (inst.components.health:GetMaxWithPenalty() / ori_health)
@@ -207,6 +216,10 @@ local master_postinit = function(inst)
                 inst.components.health:DeltaPenalty(target_penalty)
             end
         end
+		------------------------------------------- Bonus system ------------------------------------------------------------------------------------
+		inst.components.combat.damagemultiplier = 1 + bonus_dmg
+		inst.components.locomotor:SetExternalSpeedMultiplier(inst, "wyrmbane_speed_mod", 1 + bonus_mov)
+
 	end)
 
 	inst:DoPeriodicTask(1,function()
