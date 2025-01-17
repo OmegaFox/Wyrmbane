@@ -19,9 +19,8 @@ weapon
         When hitting an enemy, has a 10% chance to cause fire for 3 seconds {
             Deals 15 damage per second. If the enemy is a Moon creature, the damage is doubled.
         }
-    - ability: Wyrmbane can release all of his Blight in a powerful explosion around him, damage = [5 * Blight], heath 10% damage deal {
-        Damage dealt to all enemies within a 6-cell radius based on Wyrmbane's Blight level:
-        After use, Blight is completely reduced to 0 and has a 90 second cooldown.
+    - ability: {
+        
         }
     ]
 
@@ -47,18 +46,28 @@ recipe[
 
 <+>
     - Increase movement speed by 10% at night and cave
-    - //Gain invulnerability when receiving a fatal attack for x seconds, CD: 480s//
+    - Gain invulnerability when receiving a fatal attack for x seconds, CD: 480s
     - insmuse to cold
+    - sanity when meet boss decrease
+    - take less 15% damage shadow moon creature, deal more 15% dmg to moon creature
+    skill 
+        release all blight to deal dmg around deal 5 * blight heal to yourself 10% damage. If blight max, burn 2% heath enermy in 5 seconds
+        summon shadow (50% max heal) to assis attack
+
+
 
 
 <->
-    - nutrition and heath from food decrease by 50% {
-        can eat nightmare fuel [+25 hunger, +10 Blight, -5 sanity]
+    - nutrition and heath from food decrease (vegeterbal 50%, meat 75%) {
+        can eat nightmare fuel [+30 hunger, +10 Blight, -5 sanity]
     }
 
     - hate heat {
         will decrease heath overtime when tempure over x'C
     }
+
+    - like wortox
+
 
 <?> 
 
@@ -75,17 +84,17 @@ recipe[
         }
         Blight[26 - 50]{
             +20% bonus damage
-            +20% bonus movement
+            +10% bonus movement
             -25% max heath
         }
         Blight[51 - 75]{
-            +40% bonus damage
-            +40% bonus movement
+            +35% bonus damage
+            +20% bonus movement
             -50% max heath
         }
         Blight[76 - 100]{
-            +80% bonus damage
-            +80% movement speed
+            +50% bonus damage
+            +40% movement speed
             // 5% summon blast and +5 sanity each time success drain
             -75% max heath
         }

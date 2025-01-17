@@ -80,10 +80,38 @@ AddPrefabPostInit("wyrmbane", function(inst)
     inst:AddTag("wyrmbane")
 end)
 
+
+local shadow_aligned = {"terrorbeak", "nightmarebeak", "crawlinghorror", "crawlingnightmare", "ruinsnightmare", "shadow_leech", "shadow_knight","shadow_bishop",
+                        "shadow_rook", "shadowtentacle", "fused_shadeling_bomb", "fused_shadeling", "shadowthrall_wings", "shadowthrall_horns", "shadowthrall_hands",
+                        "shadowthrall_mouth", "bishop_nightmare", "rook_nightmare", "knight_nightmare", "stalker_forest", "stalker", "stalker_atrium", "minotaur",
+                        "daywalker", "gelblob", "chest_mimic", "chest_mimic_revealed", "punchingbag_shadow"}
+
+local lunar_aligned  = {"glommer", "spider_moon", "mutatedhound", "houndcorpse", "mutated_penguin", "carrat", "fruitdragon", "wormwood_fruitdragon", "wobster_moonglass",
+                        "wobster_moonglass_land", "bird_mutant_spitter", "bird_mutant", "gestalt", "gestalt_alterguardian_projectile", "gestalt_guard", "smallguard_alterguardian_projectile",
+                        "largeguard_alterguardian_projectile", "alterguardianhat_projectile", "alterguardian_phase1", "alterguardian_phase2", "alterguardian_phase3", "alterguardian_phase3trap",
+                        "crabking", "crabking_mob", "crabking_mob_knight", }
+
 AddComponentPostInit("combat", function(Combat)
     local old_damage = Combat.CalcDamage
     Combat.CalcDamage = function(self, target, weapon, ...)
         local damage = old_damage(self, target, weapon, ...)
+
+        --debug--
+        print("Attacker:", self.inst.prefab) 
+        print("Target:", target and target.prefab or "nil") 
+        print("Weapon:", weapon and weapon.prefab or "none")
+
+
+        if target:HasTag("wyrmbane") then
+            for _, prefab_name in ipairs(shadow_aligned) do
+                if target.prefab == prefab_name then
+                    --debug--
+                    print("Target matches prefab:", prefab_name)    
+                    -- take less damage from shadow aligned creatures
+                end
+            end
+        end
+        
         if target:HasTag("invincibility_available") then
             local current_health = target.components.health.currenthealth
             if (current_health - damage) <= 1 then
