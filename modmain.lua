@@ -80,6 +80,8 @@ AddPrefabPostInit("wyrmbane", function(inst)
     inst:AddTag("wyrmbane")
 end)
 
+--------------------------------------------------------------------------
+--- dmg --- 
 
 local shadow_aligned = {"terrorbeak", "nightmarebeak", "crawlinghorror", "crawlingnightmare", "ruinsnightmare", "shadow_leech", "shadow_knight","shadow_bishop",
                         "shadow_rook", "shadowtentacle", "fused_shadeling_bomb", "fused_shadeling", "shadowthrall_wings", "shadowthrall_horns", "shadowthrall_hands",
@@ -89,7 +91,8 @@ local shadow_aligned = {"terrorbeak", "nightmarebeak", "crawlinghorror", "crawli
 local lunar_aligned  = {"glommer", "spider_moon", "mutatedhound", "houndcorpse", "mutated_penguin", "carrat", "fruitdragon", "wormwood_fruitdragon", "wobster_moonglass",
                         "wobster_moonglass_land", "bird_mutant_spitter", "bird_mutant", "gestalt", "gestalt_alterguardian_projectile", "gestalt_guard", "smallguard_alterguardian_projectile",
                         "largeguard_alterguardian_projectile", "alterguardianhat_projectile", "alterguardian_phase1", "alterguardian_phase2", "alterguardian_phase3", "alterguardian_phase3trap",
-                        "crabking", "crabking_mob", "crabking_mob_knight", }
+                        "crabking", "crabking_mob", "crabking_mob_knight", "lunar_grazer", "lunarthrall_plant", "lunarthrall_plant_vine", "lunarthrall_plant_vine_end", 
+                        "lunarfrog", "mutateddeerclops", "mutatedbearger", "mutatedwarg", "punchingbag_lunar"}
 
 AddComponentPostInit("combat", function(Combat)
     local old_damage = Combat.CalcDamage
@@ -101,17 +104,26 @@ AddComponentPostInit("combat", function(Combat)
         print("Target:", target and target.prefab or "nil") 
         print("Weapon:", weapon and weapon.prefab or "none")
 
-
+        -- deal less damage to shadow creatures
         if target:HasTag("wyrmbane") then
             for _, prefab_name in ipairs(shadow_aligned) do
-                if target.prefab == prefab_name then
-                    --debug--
-                    print("Target matches prefab:", prefab_name)    
-                    -- take less damage from shadow aligned creatures
+                if self.inst.prefab == prefab_name then
+                    damage = damage * 0.85
                 end
             end
         end
-        
+
+        -- deal more damage to lunar creatures
+        if target and target.prefab then
+            for _, prefab_name in ipairs(lunar_aligned) do
+                if target.prefab == prefab_name then
+                    damage = damage * 1.15
+                end
+            end
+        end
+
+
+        -- invincibility
         if target:HasTag("invincibility_available") then
             local current_health = target.components.health.currenthealth
             if (current_health - damage) <= 1 then
@@ -123,6 +135,11 @@ AddComponentPostInit("combat", function(Combat)
         return damage
     end
 end)
+
+------------------------------------------------------------------------------------
+-- Food --
+
+
 
 -- Add mod character to mod character list. Also specify a gender. Possible genders are MALE, FEMALE, ROBOT, NEUTRAL, and PLURAL.
 AddModCharacter("wyrmbane", "MALE", skin_modes)

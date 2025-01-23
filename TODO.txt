@@ -5,7 +5,7 @@ stats:
     - heath = 150
     - hunger = 100
     - sanity = 200
-    - Blight = 200
+    - Soul = 200
 
 weapon 
     (scythe){
@@ -14,7 +14,7 @@ weapon
     - can fuel: [nightmare fuel: 10% each]
     - recipe[living long, nightmare fuel, red gems] 
     - effect[
-        +1 Blight each time using
+        +1 Soul each time using
         +5 sanity for each enemy killed by weapon
         When hitting an enemy, has a 10% chance to cause fire for 3 seconds {
             Deals 15 damage per second. If the enemy is a Moon creature, the damage is doubled.
@@ -45,57 +45,46 @@ recipe[
 ]
 
 <+>
-    - Increase movement speed by 10% at night and cave
-    - Gain invulnerability when receiving a fatal attack for x seconds, CD: 480s
-    - insmuse to cold
+    - insmuse to cold [done]
+    - sanity monster not attack
     - sanity when meet boss decrease
-    - take less 15% damage shadow moon creature, deal more 15% dmg to moon creature
+    - take less 15% damage shadow moon creature, deal more 15% dmg to moon creature [done]
+
     skill 
-        release all blight to deal dmg around deal 5 * blight heal to yourself 10% damage. If blight max, burn 2% heath enermy in 5 seconds
-        summon shadow (50% max heal) to assis attack
+        - [active] [#name] release all Soul to deal dmg around deal 5 * Soul heal to yourself 10% damage. If Soul max, burn 2% heath enermy in 5 seconds
+        
+        - [active] [#name] create a rift, sucking in nearby enermies and dealing dmg over time 
 
-
+        - [passive] [Last breath] Gain invulnerability when receiving a fatal attack for 10 seconds, CD: 480s [done]
 
 
 <->
     - nutrition and heath from food decrease (vegeterbal 50%, meat 75%) {
-        can eat nightmare fuel [+30 hunger, +10 Blight, -5 sanity]
+        can eat nightmare fuel [+30 hunger, +10 Soul, -5 sanity]
     }
 
     - hate heat {
-        will decrease heath overtime when tempure over x'C
+        will decrease heath overtime when tempure over x'C [done]
     }
 
-    - like wortox
+    - is a monster [done]
 
 
 <?> 
 
     <description>{
-        - Blight 
-    }
-    Blight [0 - 100] {
-        - [+1 Blight] per 15 second when combat 
-        - [+10 Blight] when eat nightmare fuel
-        - Decrease 
+        - Soul 
+        All creature around character when dead will be absorbed and transformed into Soul {
+            - giant +25
+            - monster +5
+            - small animal +2
+        }
 
-        Blight[0 - 25]{
-            - no effect
-        }
-        Blight[26 - 50]{
-            +20% bonus damage
-            +10% bonus movement
-            -25% max heath
-        }
-        Blight[51 - 75]{
-            +35% bonus damage
-            +20% bonus movement
-            -50% max heath
-        }
-        Blight[76 - 100]{
-            +50% bonus damage
-            +40% movement speed
-            // 5% summon blast and +5 sanity each time success drain
-            -75% max heath
-        }
+        when Soul maxed lose [#%] hp max heath and enter [#status_name] drain hunger [#x], deal more [#%] damage 
+        
+
+    }
+    
+    Soul [0 - 100] {
+
     }

@@ -62,6 +62,8 @@ local common_postinit = function(inst)
 	inst.MiniMapEntity:SetIcon( "wyrmbane.tex" )
 
 	inst:AddTag("wyrmbane")
+	inst:AddTag("playermonster")
+	inst:AddTag("monster")
 	inst:AddTag("invincibility_available")
 
 	inst.wyrmbane_blight_badge = net_ushortint(inst.GUID, "wyrmbane_blight_badge", "blightdelta" )
@@ -108,6 +110,8 @@ end
 local master_postinit = function(inst)
 	
     inst:AddComponent("wyrmbane_blight")
+	
+
 	inst.in_combat = false
 
     inst.starting_inventory = start_inv[TheNet:GetServerGameMode()] or start_inv.default
