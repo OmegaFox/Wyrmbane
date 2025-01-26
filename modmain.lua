@@ -65,15 +65,27 @@ local skin_modes = {
 }
 
 
-blight_badge  = require "widgets/blight_badge"
+soul_badge  = require "widgets/soul_badge"
 AddClassPostConstruct("widgets/statusdisplays", function(self)
-    if self.owner.prefab ~= 'wyrmbane' then
-        return
+    if self.owner:HasTag("wyrmbane") then
+        self.wyrmbane_soul = self:AddChild(soul_badge(self.owner))
+        self.wyrmbane_soul:SetPosition(-125, 75, 0) 
+        
     end
 
-    self.name = self:AddChild(blight_badge(self.owner))
-    self.name:SetPosition(-125, 75, 0) 
-
+    local old_SetGhostMode = self.SetGhostMode
+        function self:SetGhostMode(ghostmode, ...)
+            old_SetGhostMode(self, ghostmode, ...)
+            if ghostmode then
+                if self.wyrmbane_soul ~= nil then
+                    self.wyrmbane_soul:Hide()
+                end
+            else
+                if self.wyrmbane_soul ~= nil then
+                    self.wyrmbane_soul:Show()
+                end
+            end
+        end
 end)
 
 AddPrefabPostInit("wyrmbane", function(inst) 

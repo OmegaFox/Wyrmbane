@@ -6,13 +6,13 @@ local assets = {
 }
 
 local prefabs = {}
-require "components/wyrmbane_blight" 
+require "components/wyrmbane_soul" 
 
 -- Your character's stats
 TUNING.WYRMBANE_HEALTH = 150
 TUNING.WYRMBANE_HUNGER = 150
 TUNING.WYRMBANE_SANITY = 200
-TUNING.WYRMBANE_BLIGHT = 200
+TUNING.WYRMBANE_SOUL = 200
 
 -- Custom starting inventory
 TUNING.GAMEMODE_STARTING_ITEMS.DEFAULT.WYRMBANE = {
@@ -48,12 +48,12 @@ local function onload(inst)
 end
 
 local function OnSave(inst,data)
-	data.wyrmbane_blight_badge = inst.wyrmbane_blight_badge:value()
+	data.wyrmbane_soul_badge = inst.wyrmbane_soul_badge:value()
 end
 
 local function OnLoad(inst,data)
-	if data and data.wyrmbane_blight_badge then
-		inst.wyrmbane_blight_badge:set(data.wyrmbane_blight_badge)
+	if data and data.wyrmbane_soul_badge then
+		inst.wyrmbane_soul_badge:set(data.wyrmbane_soul_badge)
 	end
 end
 
@@ -65,12 +65,10 @@ local common_postinit = function(inst)
 	inst:AddTag("playermonster")
 	inst:AddTag("monster")
 	inst:AddTag("invincibility_available")
+	inst.wyrmbane_soul_badge = net_ushortint(inst.GUID, "wyrmbane_soul_badge", "soul_delta" )
+	inst.wyrmbane_soul_badge:set(0)
+	inst.wyrmbane_soul_badge:value()
 
-	inst.wyrmbane_blight_badge = net_ushortint(inst.GUID, "wyrmbane_blight_badge", "blightdelta" )
-	inst.wyrmbane_blight_badge:set(0)
-	inst.wyrmbane_blight_badge:value()
-
-    inst.AnimState:SetScale(1.1, 1.1)
 end
 -----------------------------------------------------------------------------------------------------------
 
@@ -109,7 +107,7 @@ end
 
 local master_postinit = function(inst)
 	
-    inst:AddComponent("wyrmbane_blight")
+    inst:AddComponent("wyrmbane_soul")
 	
 
 	inst.in_combat = false
@@ -186,40 +184,40 @@ local master_postinit = function(inst)
 
 
 	inst:DoPeriodicTask(0.5, function()		
-		local max_blight = inst.components.wyrmbane_blight:GetMaxBlight()
-		local current_blight = inst.components.wyrmbane_blight:GetCurrent()
+		local max_soul = inst.components.wyrmbane_soul:GetMaxSoul()
+		local current_soul = inst.components.wyrmbane_soul:GetCurrent()
 		local ori_health = TUNING.WYRMBANE_HEALTH
-		local newcurrent = current_blight / max_blight
-		print(current_blight)
+		local newcurrent = current_soul / max_soul
+		print(current_soul)
 		------------------------------------------- Penalty system ------------------------------------------------------------------------------------
         local target_penalty = 0
 		local bonus_dmg = 0
 		local bonus_mov = 0
 
         if newcurrent < 0.25 then
-            target_penalty = 0
+            -- target_penalty = 0
         elseif newcurrent < 0.5 then
-            target_penalty = penalty1
+            -- target_penalty = penalty1
 			bonus_dmg = 0.2
 			bonus_mov = 0.2
         elseif newcurrent < 0.75 then
-            target_penalty = penalty2
+            -- target_penalty = penalty2
 			bonus_dmg = 0.4
 			bonus_mov = 0.4
         else
-            target_penalty = penalty3
+            -- target_penalty = penalty3
 			bonus_dmg = 0.8
 			bonus_mov = 0.8
         end
         
-        local current_penalty = 1 - (inst.components.health:GetMaxWithPenalty() / ori_health)
+        -- local current_penalty = 1 - (inst.components.health:GetMaxWithPenalty() / ori_health)
 
-        if target_penalty ~= current_penalty then
-            inst.components.health:DeltaPenalty(rm_penalty)  
-            if target_penalty > 0 then
-                inst.components.health:DeltaPenalty(target_penalty)
-            end
-        end
+        -- if target_penalty ~= current_penalty then
+        --     inst.components.health:DeltaPenalty(rm_penalty)  
+        --     if target_penalty > 0 then
+        --         inst.components.health:DeltaPenalty(target_penalty)
+        --     end
+        -- end
 		------------------------------------------- Bonus system ------------------------------------------------------------------------------------
 		inst.components.combat.damagemultiplier = 1 + bonus_dmg
 		inst.components.locomotor:SetExternalSpeedMultiplier(inst, "wyrmbane_speed_mod", 1 + bonus_mov)
@@ -227,15 +225,15 @@ local master_postinit = function(inst)
 	end)
 
 	inst:DoPeriodicTask(1,function()
-		-- reduce blight when not in combat
+		-- reduce soul when not in combat
 		if not inst.in_combat then
-			local current_blight = inst.components.wyrmbane_blight:GetCurrent()
-			if current_blight > 0 then
-				inst.components.wyrmbane_blight:DoDelta(-1)
+			local current_soul = inst.components.wyrmbane_soul:GetCurrent()
+			if current_soul > 0 then
+				inst.components.wyrmbane_soul:DoDelta(-1)
 			end
 		end
-		------------------------------------------- Blight badge---------------------------------------------------------------------------------------------
-		inst.wyrmbane_blight_badge:set(inst.components.wyrmbane_blight:GetCurrent())
+		------------------------------------------- Soul badge---------------------------------------------------------------------------------------------
+		inst.wyrmbane_soul_badge:set(inst.components.wyrmbane_soul:GetCurrent())
 
 	end)
 	

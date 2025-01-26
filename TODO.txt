@@ -84,7 +84,10 @@ recipe[
         
 
     }
-    
+
     Soul [0 - 100] {
 
     }
+
+
+AllPlayers[1].components.wyrmbane_soul:GetCurrent()
