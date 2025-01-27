@@ -64,6 +64,7 @@ local skin_modes = {
     },
 }
 
+AddReplicableComponent("wyrmbane_soul")
 
 soul_badge  = require "widgets/soul_badge"
 AddClassPostConstruct("widgets/statusdisplays", function(self)

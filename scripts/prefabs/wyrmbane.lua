@@ -57,19 +57,7 @@ local function OnLoad(inst,data)
 	end
 end
 
-local common_postinit = function(inst) 
 
-	inst.MiniMapEntity:SetIcon( "wyrmbane.tex" )
-
-	inst:AddTag("wyrmbane")
-	inst:AddTag("playermonster")
-	inst:AddTag("monster")
-	inst:AddTag("invincibility_available")
-	inst.wyrmbane_soul_badge = net_ushortint(inst.GUID, "wyrmbane_soul_badge", "soul_delta" )
-	inst.wyrmbane_soul_badge:set(0)
-	inst.wyrmbane_soul_badge:value()
-
-end
 -----------------------------------------------------------------------------------------------------------
 
 local function OnAttacked(inst, data)
@@ -104,6 +92,20 @@ local function showTextUI (inst, duration, text)
 	end
 end
 
+local common_postinit = function(inst) 
+
+	inst.MiniMapEntity:SetIcon( "wyrmbane.tex" )
+
+	inst:AddTag("wyrmbane")
+	inst:AddTag("playermonster")
+	inst:AddTag("monster")
+	inst:AddTag("invincibility_available")
+	
+	-- inst.wyrmbane_soul_badge = net_ushortint(inst.GUID, "wyrmbane_soul_badge", "soul_delta" )
+	-- inst.wyrmbane_soul_badge:set(0)
+	-- inst.wyrmbane_soul_badge:value()
+
+end
 
 local master_postinit = function(inst)
 	
