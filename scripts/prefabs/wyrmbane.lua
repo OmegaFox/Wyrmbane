@@ -48,13 +48,13 @@ local function onload(inst)
 end
 
 local function OnSave(inst,data)
-	data.wyrmbane_soul_badge = inst.wyrmbane_soul_badge:value()
+	-- data.wyrmbane_soul_badge = inst.wyrmbane_soul_badge:value()
 end
 
 local function OnLoad(inst,data)
-	if data and data.wyrmbane_soul_badge then
-		inst.wyrmbane_soul_badge:set(data.wyrmbane_soul_badge)
-	end
+	-- if data and data.wyrmbane_soul_badge then
+	-- 	inst.wyrmbane_soul_badge:set(data.wyrmbane_soul_badge)
+	-- end
 end
 
 
@@ -140,7 +140,6 @@ local master_postinit = function(inst)
 	inst.components.temperature:SetOverheatHurtRate(2)
 	
 	inst.OnLoad = onload
-	inst.OnLoad = OnLoad
     inst.OnNewSpawn = onload
 	inst.OnSave = OnSave
 
@@ -187,7 +186,7 @@ local master_postinit = function(inst)
 
 	inst:DoPeriodicTask(0.5, function()		
 		local max_soul = inst.components.wyrmbane_soul:GetMaxSoul()
-		local current_soul = inst.components.wyrmbane_soul:GetCurrent()
+		local current_soul = inst.components.wyrmbane_soul:GetCurrentSoul()
 		local ori_health = TUNING.WYRMBANE_HEALTH
 		local newcurrent = current_soul / max_soul
 		print(current_soul)
@@ -229,13 +228,13 @@ local master_postinit = function(inst)
 	inst:DoPeriodicTask(1,function()
 		-- reduce soul when not in combat
 		if not inst.in_combat then
-			local current_soul = inst.components.wyrmbane_soul:GetCurrent()
+			local current_soul = inst.components.wyrmbane_soul:GetCurrentSoul()
 			if current_soul > 0 then
 				inst.components.wyrmbane_soul:DoDelta(-1)
 			end
 		end
 		------------------------------------------- Soul badge---------------------------------------------------------------------------------------------
-		inst.wyrmbane_soul_badge:set(inst.components.wyrmbane_soul:GetCurrent())
+		-- inst.wyrmbane_soul_badge:set(inst.components.wyrmbane_soul:GetCurrentSoul())
 
 	end)
 	

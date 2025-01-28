@@ -33,6 +33,8 @@ Assets = {
 	
 	Asset( "IMAGE", "images/names_gold_wyrmbane.tex" ),
     Asset( "ATLAS", "images/names_gold_wyrmbane.xml" ),
+
+    Asset( "ANIM", "anim/wyrmbane_soul.zip"),
 }
 
 AddMinimapAtlas("images/map_icons/wyrmbane.xml")
@@ -66,13 +68,23 @@ local skin_modes = {
 
 AddReplicableComponent("wyrmbane_soul")
 
-soul_badge  = require "widgets/soul_badge"
+local wyrmbane_soul_badge  = require("widgets/wyrmbane_soul_badge")
 AddClassPostConstruct("widgets/statusdisplays", function(self)
     if self.owner:HasTag("wyrmbane") then
-        self.wyrmbane_soul = self:AddChild(soul_badge(self.owner))
-        self.wyrmbane_soul:SetPosition(-125, 75, 0) 
+        self.wyrmbane_soul = self:AddChild(wyrmbane_soul_badge(self.owner))
+
+        
+        self.wyrmbane_soul:SetPosition(-150, 75, 0) 
         
     end
+
+    self.inst:ListenForEvent("wyrmbane_souldelta", 
+        function (inst, data)
+            print("wyrmbane_souldelta event: data = ", data)
+            print("wyrmbane_souldelta event: self... = ", self.owner.replica.wyrmbane_soul:GetPercent())
+            self.wyrmbane_soul:SetPercent(data, self.owner.replica.wyrmbane_soul:Max())
+        end, 
+    self.owner)
 
     local old_SetGhostMode = self.SetGhostMode
         function self:SetGhostMode(ghostmode, ...)

@@ -19,28 +19,36 @@ end, nil, {
     max = onmax
 })
 
+
+
 function Soul:GetMaxSoul()
     return self.max
 end
 
-function Soul:GetCurrent()
+function Soul:SetCurrentSoul(amount)
+    self.current = math.clamp(amount, 0, self.max)
+    --     self.inst:PushEvent("wyrmbane_souldelta", { 
+    --         current = self.current 
+    --     }
+    -- )
+end
+
+function Soul:GetCurrentSoul()
     return self.current
 end
 
-function Soul:GetPercent()
+function Soul:SetPercentSoul(amount)
+    self.current = amount * self.max 
+end
+
+function Soul:GetPercentSoul()
     return self.current / self.max
 end
 
-function Soul:SetCurrent(amount)
-    self.current = math.clamp(amount, 0, self.max)
-        self.inst:PushEvent("souldelta", { 
-            current = self.current 
-        }
-    )
-end
+
 
 function Soul:DoDelta(amount)
-    self:SetCurrent(self.current + amount)
+    self:SetCurrentSoul(self.current + amount)
 
     if self.current == self.max then
         -- Push event
